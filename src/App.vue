@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import BookmarkTree from "./components/BookmarkTree.vue";
+import BookmarkBaseAttributesComponent from "./components/BookmarkBaseAttributesComponent.vue";
+import BookmarkFolderAttributesComponent from "./components/BookmarkFolderAttributesComponent.vue";
+import BookmarkFolderComponent from "./components/BookmarkFolderComponent.vue";
+import BookmarkItemAttributesComponent from "./components/BookmarkItemAttributesComponent.vue";
 import { use_bookmarks_store, type Bookmark } from "./stores/bookmarks";
 import { use_preferences_store } from "./stores/preferences";
 
@@ -203,8 +206,8 @@ chrome.bookmarks.getTree((nodes) => {
 			<div class="card-body">
 				<h2 class="card-title">Bookmark Tree</h2>
 				<ul class="menu w-full">
-					<BookmarkTree v-if="bookmarks_store.parent" v-bind="bookmarks_store.parent" />
-					<BookmarkTree v-if="bookmarks_store.others" v-bind="bookmarks_store.others" />
+					<BookmarkFolderComponent v-if="bookmarks_store.parent !== undefined" v-bind="bookmarks_store.parent" />
+					<BookmarkFolderComponent v-if="bookmarks_store.others !== undefined" v-bind="bookmarks_store.others" />
 				</ul>
 				<div class="card-actions justify-end">
 					<button type="button" class="btn btn-primary" disabled>Save</button>
@@ -212,4 +215,18 @@ chrome.bookmarks.getTree((nodes) => {
 			</div>
 		</div>
 	</main>
+	<dialog v-if="bookmarks_store.selected !== undefined" class="modal" open @close="bookmarks_store.selected_id = undefined">
+		<form method="dialog" class="modal-box card-body">
+			<h2 class="card-title">Attributes</h2>
+			<BookmarkBaseAttributesComponent v-bind="bookmarks_store.selected" />
+			<BookmarkFolderAttributesComponent v-if="bookmarks_store.selected.folder" v-bind="bookmarks_store.selected" />
+			<BookmarkItemAttributesComponent v-else v-bind="bookmarks_store.selected" />
+			<div class="card-actions justify-end">
+				<button type="submit" class="btn">Close</button>
+			</div>
+		</form>
+		<form method="dialog" class="modal-backdrop">
+			<button></button>
+		</form>
+	</dialog>
 </template>
